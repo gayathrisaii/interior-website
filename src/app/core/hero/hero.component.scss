@@ -1,0 +1,87 @@
+.hero {
+  height: 90vh;
+  background-image: url('/assets/images/interior-hero.jpg');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* DARK OVERLAY */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* CONTENT */
+.content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  padding: 0 20px;
+
+  h1 {
+    font-size: 50px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+  }
+}
+
+/* BUTTONS */
+.buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+
+  .primary {
+    background: #c8a165;
+    color: #fff;
+
+    &:hover {
+      background: #b08a50;
+    }
+  }
+
+  .secondary {
+    border: 1px solid #fff;
+    color: #fff;
+
+    &:hover {
+      background: #fff;
+      color: #000;
+    }
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero {
+    height: 75vh;
+  }
+
+  .content h1 {
+    font-size: 32px;
+  }
+
+  .content p {
+    font-size: 16px;
+  }
+}

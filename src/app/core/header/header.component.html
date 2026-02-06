@@ -1,0 +1,26 @@
+<header class="header">
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo">
+      <a routerLink="/">Interior<span>Design</span></a>
+    </div>
+
+    <!-- Hamburger -->
+    <div class="menu-icon" (click)="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav [class.active]="menuOpen">
+      <a routerLink="/" (click)="closeMenu()">Home</a>
+      <a routerLink="/about" (click)="closeMenu()">About</a>
+      <a routerLink="/services" (click)="closeMenu()">Services</a>
+      <a routerLink="/projects" (click)="closeMenu()">Projects</a>
+      <a routerLink="/contact" (click)="closeMenu()">Contact</a>
+
+      <button class="cta">Call Now</button>
+    </nav>
+  </div>
+</header>

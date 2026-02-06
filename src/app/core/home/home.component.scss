@@ -1,0 +1,52 @@
+.home-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+
+  h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .subtitle {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 40px;
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.feature-card {
+  display: block;
+  padding: 30px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.8em;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1em;
+    opacity: 0.9;
+  }
+}
