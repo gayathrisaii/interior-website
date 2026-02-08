@@ -1,0 +1,67 @@
+<div class="contact-container" @fadeSlide>
+
+  <mat-card class="contact-card">
+    <mat-card-header>
+      <mat-card-title>Contact Us</mat-card-title>
+     
+    </mat-card-header>
+     <br>
+    <mat-card-content >
+      <form [formGroup]="contactForm" (ngSubmit)="submit()">
+
+        <!-- Name -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="name" />
+          <mat-error *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+            Name is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input matInput type="email" formControlName="email" />
+          <mat-error *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+            Enter a valid email
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Phone -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Phone</mat-label>
+          <mat-icon matPrefix>phone</mat-icon>
+          <input matInput type="tel" formControlName="phone" />
+          <mat-error *ngIf="contactForm.get('phone')?.invalid && contactForm.get('phone')?.touched">
+            Enter a valid 10-digit phone
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Message -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Message</mat-label>
+          <mat-icon matPrefix>chat</mat-icon>
+          <textarea matInput rows="4" formControlName="message"></textarea>
+          <mat-error *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched">
+            Message is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Submit -->
+        <button mat-raised-button
+                color="primary"
+                class="submit-btn"
+                type="submit"
+                [disabled]="contactForm.invalid || submitting">
+
+          <mat-icon *ngIf="!submitting">send</mat-icon>
+          <span>{{ submitting ? 'Sending...' : 'Send Message' }}</span>
+        </button>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+</div>
