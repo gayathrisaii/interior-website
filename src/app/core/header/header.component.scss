@@ -18,9 +18,14 @@
 
 /* LOGO */
 .logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  
   img {
-    height: 50px;
+    height: 40px;
     width: auto;
+    max-width: 150px;
     object-fit: contain;
   }
 }
