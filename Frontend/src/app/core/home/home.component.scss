@@ -44,18 +44,18 @@
 
 .feature-panel.large {
   background-image: linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.5)),
-    url('/assets/bup-design-hall.jpeg');
+    url('/interior-website/assets/bup-design-hall.jpeg');
 }
 
 .panel-one {
   background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)),
-    url('/assets/bup-design-kitchen.jpeg');
+    url('/interior-website/assets/bup-design-kitchen.jpeg');
   background-position: center;
 }
 
 .panel-two {
   background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.55)),
-    url('/assets/bup-design-modular-kitchen.jpeg');
+    url('/interior-website/assets/bup-design-modular-kitchen.jpeg');
   background-position: center;
 }
 
@@ -125,7 +125,7 @@
   min-height: 520px;
   border-radius: 26px;
   background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.26)),
-    url('/assets/bup-design-hall-design.jpeg');
+    url('/interior-website/assets/bup-design-hall-design.jpeg');
   background-size: cover;
   background-position: center;
   position: relative;
@@ -348,18 +348,18 @@
 
 .gallery-card.tall {
   background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)),
-    url('/assets/bup-wardrobe.jpeg');
+    url('/interior-website/assets/bup-wardrobe.jpeg');
   grid-row: 1 / span 2;
 }
 
 .gallery-card.short {
   background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.2)),
-    url('/assets/bup-design-cuboard.jpeg');
+    url('/interior-website/assets/bup-design-cuboard.jpeg');
 }
 
 .gallery-card.short.alt {
   background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.2)),
-    url('/assets/bup-design-kitchen.jpeg');
+    url('/interior-website/assets/bup-design-kitchen.jpeg');
 }
 
 .testimonials {
