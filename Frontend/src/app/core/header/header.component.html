@@ -1,23 +1,19 @@
 <header class="header">
   <div class="container">
-    <!-- Logo -->
     <div class="logo">
-      <img src="logo.png" alt="Interior Design Logo" />
+      <img src="assets/logo.png" alt="Bup Interior Designs" />
     </div>
 
-    <!-- Hamburger -->
     <div class="menu-icon" (click)="toggleMenu()">
       <span></span>
       <span></span>
       <span></span>
     </div>
 
-    <!-- Navigation -->
     <nav [class.active]="menuOpen">
       <a routerLink="/" (click)="closeMenu()">Home</a>
-     <a routerLink="/about">About</a>
+      <a routerLink="/about">About</a>
       <a routerLink="/services" (click)="closeMenu()">Services</a>
-      <a routerLink="/projects" (click)="closeMenu()">Projects</a>
       <a routerLink="/contact" (click)="closeMenu()">Contact</a>
 
       <button class="cta">Call Now</button>
