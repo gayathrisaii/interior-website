@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="120" viewBox="0 0 420 120" role="img" aria-label="Dream2Decor logo">
+  <defs>
+    <linearGradient id="gold" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#D7B465"/>
+      <stop offset="100%" stop-color="#A57A2F"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="10" y="18" width="84" height="84" rx="20" fill="url(#gold)"/>
+  <path d="M35 36h22c15 0 26 10 26 24s-11 24-26 24H35V36zm18 12H47v24h6c8 0 14-5 14-12s-6-12-14-12z" fill="#171717"/>
+  <path d="M59 36h10v48H59z" fill="#171717"/>
+
+  <text x="118" y="74" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#171717" letter-spacing="0.4">
+    Dream<tspan fill="url(#gold)">2</tspan>Decor
+  </text>
+</svg>

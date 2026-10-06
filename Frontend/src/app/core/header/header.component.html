@@ -1,18 +1,20 @@
 <header class="header">
   <div class="container">
-    <div class="logo">
-      <img src="assets/logo.png" alt="Bup Interior Designs" />
+    <a routerLink="/" class="logo" (click)="closeMenu()">
+      <img src="assets/dream2decor-logo.svg" alt="Dream2Decor logo" />
+    </a>
+
+    <div class="menu-icon" [class.open]="menuOpen" (click)="toggleMenu()" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
 
-    <div class="menu-icon" (click)="toggleMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+    <div class="menu-backdrop" [class.visible]="menuOpen" (click)="closeMenu()"></div>
 
     <nav [class.active]="menuOpen">
       <a routerLink="/" (click)="closeMenu()">Home</a>
-      <a routerLink="/about">About</a>
+      <a routerLink="/about" (click)="closeMenu()">About</a>
       <a routerLink="/services" (click)="closeMenu()">Services</a>
       <a routerLink="/contact" (click)="closeMenu()">Contact</a>
 

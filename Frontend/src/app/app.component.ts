@@ -14,16 +14,16 @@ export class AppComponent implements OnInit {
   constructor(private titleService: Title, private metaService: Meta) {}
 
   ngOnInit(): void {
-    this.titleService.setTitle('Bup Interior Designs | Interior Design & Construction');
+    this.titleService.setTitle('Dream2Decor');
     this.metaService.updateTag({
       name: 'description',
       content:
-        'Bup Interior Designs delivers elegant interior design, modular kitchens, wardrobes, and complete construction solutions for homes and commercial spaces.'
+        'Dream2Decor delivers elegant interior design, modular kitchens, wardrobes, and complete construction solutions for homes and commercial spaces.'
     });
     this.metaService.updateTag({
       name: 'keywords',
       content:
-        'interior design, home interiors, Bup Interior Designs, modular kitchen, wardrobe design, construction services'
+        'interior design, home interiors, Dream2Decor, modular kitchen, wardrobe design, construction services'
     });
   }
 }
