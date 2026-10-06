@@ -61,7 +61,7 @@
                   "maximumError": "8kB"
                 }
               ],
-              "baseHref": "/interior-website/",
+              "baseHref": "/",
               "outputHashing": "all"
             },
             "development": {
