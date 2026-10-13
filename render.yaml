@@ -5,7 +5,7 @@ services:
     plan: free
     region: singapore
     rootDir: Frontend
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run serve:ssr:interior-website
     healthCheckPath: /
     envVars:
