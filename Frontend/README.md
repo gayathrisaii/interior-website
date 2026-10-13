@@ -62,15 +62,16 @@ For more information on using the Angular CLI, including detailed command refere
 
 The Express SSR server provides `POST /api/contact`. It validates the submitted name, email, 10-digit phone number, and message, emails the submission to `umaprasad@dream2decor.in`, and appends it as a JSON object on its own line to `data/contact-submissions.jsonl`. This is file-based storage; no SQL database is used. The `data` directory is excluded from Git. Set `CONTACT_SUBMISSIONS_FILE` to choose another path.
 
-The Node server sends messages through the GoDaddy SMTP service at `smtpout.secureserver.net` on port `465` with implicit TLS. Configure the Render service with:
+Contact email is sent through Brevo's HTTPS transactional email API when `BREVO_API_KEY` is configured. This avoids Render's SMTP connectivity restrictions while keeping GoDaddy as the receiving mailbox. Configure a Brevo account, create and verify the sender address, and set these Render environment variables:
 
 ```text
-EMAIL_USER=umaprasad@dream2decor.in
-EMAIL_PASSWORD=<your GoDaddy mailbox password>
+BREVO_API_KEY=<your Brevo API key>
+BREVO_FROM_EMAIL=umaprasad@dream2decor.in
+BREVO_FROM_NAME=Dream2Decor Website
 CONTACT_TO=umaprasad@dream2decor.in
 ```
 
-The `render.yaml` Blueprint requests `EMAIL_PASSWORD` as a secret. Enter it in Render's environment settings; never commit it or put it in frontend configuration. `SMTP_HOST`, `SMTP_PORT`, and `SMTP_SECURE` can override the SMTP connection settings. The endpoint reports delivery failures rather than claiming the message was sent.
+Verify `umaprasad@dream2decor.in` as a sender in Brevo before testing. The API key is a secret: add it only in Render's environment settings, never in source code or frontend configuration. If `BREVO_API_KEY` is absent, the server falls back to GoDaddy SMTP (`smtpout.secureserver.net`, port `465`, implicit TLS); configure `EMAIL_USER` and `EMAIL_PASSWORD` for that fallback. The endpoint reports delivery failures rather than claiming the message was sent.
 
 To run the contact API during development, first build and start the Node server in one terminal:
 

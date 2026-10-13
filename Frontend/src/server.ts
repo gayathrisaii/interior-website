@@ -16,6 +16,46 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+async function sendWithBrevo(
+  apiKey: string,
+  senderEmail: string,
+  senderName: string,
+  contactTo: string,
+  submission: { name: string; email: string; phone: string; message: string },
+  submittedAt: string,
+): Promise<void> {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'api-key': apiKey,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { email: senderEmail, name: senderName },
+      to: [{ email: contactTo }],
+      replyTo: { email: submission.email },
+      subject: 'New contact form submission',
+      textContent: [
+        `Name: ${submission.name}`,
+        `Email: ${submission.email}`,
+        `Phone: ${submission.phone}`,
+        `Submitted at: ${submittedAt}`,
+        '',
+        'Message:',
+        submission.message,
+      ].join('\n'),
+    }),
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!response.ok) {
+    const error = new Error(`Brevo email API returned HTTP ${response.status}`);
+    Object.assign(error, { code: `BREVO_HTTP_${response.status}` });
+    throw error;
+  }
+}
+
 app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next) => {
   const body: unknown = req.body;
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {
@@ -58,6 +98,9 @@ app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next)
     ...submission,
     submittedAt: new Date().toISOString(),
   };
+  const brevoApiKey = process.env['BREVO_API_KEY'];
+  const brevoFromEmail = process.env['BREVO_FROM_EMAIL'] ?? process.env['EMAIL_USER'];
+  const brevoFromName = process.env['BREVO_FROM_NAME'] ?? 'Dream2Decor Website';
   const smtpHost = process.env['SMTP_HOST'] ?? 'smtpout.secureserver.net';
   const smtpPort = Number(process.env['SMTP_PORT'] ?? 465);
   const smtpUser = process.env['EMAIL_USER'] ?? process.env['SMTP_USER'];
@@ -69,16 +112,35 @@ app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next)
     ? smtpPort === 465
     : smtpSecureSetting.toLowerCase() === 'true';
 
+  const validEmail = (value: string | undefined): value is string =>
+    typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const brevoSender = brevoApiKey && validEmail(brevoFromEmail)
+    ? { apiKey: brevoApiKey, email: brevoFromEmail }
+    : undefined;
+
+  if (!contactTo) {
+    console.error('Contact email is unavailable because its recipient is not configured.');
+    res.status(503).json({ message: 'Contact email is not configured. Please try again later.' });
+    return;
+  }
+  if (brevoApiKey && !brevoSender) {
+    console.error('Contact email is unavailable because its verified sender is not configured.');
+    res.status(503).json({ message: 'Contact email is not configured. Please try again later.' });
+    return;
+  }
+
   if (
-    !smtpHost.trim() ||
-    !smtpUser ||
-    !smtpPass ||
-    !smtpFrom ||
-    !contactTo ||
-    !Number.isInteger(smtpPort) ||
-    smtpPort < 1 ||
-    smtpPort > 65535 ||
-    (smtpSecureSetting !== undefined && !['true', 'false'].includes(smtpSecureSetting.toLowerCase()))
+    !brevoSender &&
+    (
+      !smtpHost.trim() ||
+      !smtpUser ||
+      !smtpPass ||
+      !smtpFrom ||
+      !Number.isInteger(smtpPort) ||
+      smtpPort < 1 ||
+      smtpPort > 65535 ||
+      (smtpSecureSetting !== undefined && !['true', 'false'].includes(smtpSecureSetting.toLowerCase()))
+    )
   ) {
     console.error('Contact email is unavailable because SMTP configuration is incomplete or invalid.');
     res.status(503).json({ message: 'Contact email is not configured. Please try again later.' });
@@ -97,21 +159,30 @@ app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next)
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpSecure,
-    auth: { user: smtpUser, pass: smtpPass },
-    connectionTimeout: 15_000,
-    greetingTimeout: 15_000,
-    socketTimeout: 15_000,
-  });
-
   try {
-    await transporter.sendMail({
-      from: smtpFrom,
-      to: contactTo,
-      replyTo: submission.email,
+    if (brevoSender) {
+      await sendWithBrevo(
+        brevoSender.apiKey,
+        brevoSender.email,
+        brevoFromName,
+        contactTo,
+        submission,
+        record.submittedAt,
+      );
+    } else {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: { user: smtpUser, pass: smtpPass },
+        connectionTimeout: 15_000,
+        greetingTimeout: 15_000,
+        socketTimeout: 15_000,
+      });
+      await transporter.sendMail({
+        from: smtpFrom,
+        to: contactTo,
+        replyTo: submission.email,
         subject: 'New contact form submission',
         text: [
           `Name: ${submission.name}`,
@@ -122,14 +193,34 @@ app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next)
           'Message:',
           submission.message,
         ].join('\n'),
-    });
+      });
+    }
 
     res.status(201).json({ message: 'Your message has been sent.' });
   } catch (error) {
-    console.error(
-      'Contact email delivery failed:',
-      error instanceof Error ? error.name : 'Unknown email error',
-    );
+    const errorDetails: Record<string, string | number> = {
+      name: error instanceof Error ? error.name : 'Unknown email error',
+    };
+    const cause = typeof error === 'object' && error !== null && 'cause' in error
+      ? error.cause
+      : undefined;
+
+    if (typeof error === 'object' && error !== null) {
+      if ('code' in error && typeof error.code === 'string') {
+        errorDetails['code'] = error.code;
+      }
+      if ('responseCode' in error && typeof error.responseCode === 'number') {
+        errorDetails['responseCode'] = error.responseCode;
+      }
+      if ('command' in error && typeof error.command === 'string') {
+        errorDetails['command'] = error.command;
+      }
+    }
+    if (typeof cause === 'object' && cause !== null && 'code' in cause && typeof cause.code === 'string') {
+      errorDetails['causeCode'] = cause.code;
+    }
+
+    console.error('Contact email delivery failed:', errorDetails);
     res.status(502).json({
       message: 'Your message was saved, but we could not email it. Please try again later.',
     });

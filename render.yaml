@@ -17,6 +17,12 @@ services:
         sync: false
       - key: CONTACT_TO
         value: umaprasad@dream2decor.in
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM_EMAIL
+        value: umaprasad@dream2decor.in
+      - key: BREVO_FROM_NAME
+        value: Dream2Decor Website
       - key: SMTP_HOST
         value: smtpout.secureserver.net
       - key: SMTP_PORT
