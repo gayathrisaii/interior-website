@@ -11,13 +11,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: EMAIL_USER
-        value: umaprasad@dream2decor.in
-      - key: EMAIL_PASSWORD
+      - key: RESEND_API_KEY
         sync: false
+      - key: RESEND_FROM
+        value: Dream2Decor <umaprasad@dream2decor.in>
       - key: CONTACT_TO
         value: umaprasad@dream2decor.in
-      - key: SMTP_HOST
-        value: smtpout.secureserver.net
-      - key: SMTP_PORT
-        value: "465"

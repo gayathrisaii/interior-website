@@ -62,15 +62,15 @@ For more information on using the Angular CLI, including detailed command refere
 
 The Express SSR server provides `POST /api/contact`. It validates the submitted name, email, 10-digit phone number, and message, emails the submission to `umaprasad@dream2decor.in`, and appends it as a JSON object on its own line to `data/contact-submissions.jsonl`. This is file-based storage; no SQL database is used. The `data` directory is excluded from Git. Set `CONTACT_SUBMISSIONS_FILE` to choose another path.
 
-The server defaults to GoDaddy SMTP at `smtpout.secureserver.net:465` with TLS. Configure the mailbox credentials and destination in the Node server's environment:
+The Node server sends messages using the Resend email API. Verify `dream2decor.in` in Resend and add the DNS records Resend requests before sending. Keep the GoDaddy MX records unchanged so the existing mailbox continues to receive mail. Configure the Render service with:
 
 ```text
-EMAIL_USER=umaprasad@dream2decor.in
-EMAIL_PASSWORD=<your real mailbox password>
+RESEND_API_KEY=<your Resend API key>
+RESEND_FROM=Dream2Decor <umaprasad@dream2decor.in>
 CONTACT_TO=umaprasad@dream2decor.in
 ```
 
-`SMTP_HOST` and `SMTP_PORT` can override the GoDaddy defaults; port 465 uses implicit TLS. `SMTP_FROM` can override the sender address (defaults to `EMAIL_USER`). For compatibility, credentials can also be set as `SMTP_USER` and `SMTP_PASS`. Store the real password only in your hosting provider's secret/environment settings, never in source code or frontend configuration. The endpoint reports delivery failures rather than claiming the message was sent.
+Create the API key in Resend and store it only in Render's secret environment settings; never commit it or put it in frontend configuration. `RESEND_FROM` must be an address on a domain verified in Resend. The endpoint reports delivery failures rather than claiming the message was sent.
 
 To run the contact API during development, first build and start the Node server in one terminal:
 

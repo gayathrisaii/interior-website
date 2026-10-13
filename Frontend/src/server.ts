@@ -8,7 +8,6 @@ import express, { ErrorRequestHandler } from 'express';
 import { appendFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import nodemailer from 'nodemailer';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -58,28 +57,12 @@ app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next)
     ...submission,
     submittedAt: new Date().toISOString(),
   };
-  const smtpHost = process.env['SMTP_HOST'] ?? 'smtpout.secureserver.net';
-  const smtpPort = Number(process.env['SMTP_PORT'] ?? 465);
-  const smtpUser = process.env['EMAIL_USER'] ?? process.env['SMTP_USER'];
-  const smtpPass = process.env['EMAIL_PASSWORD'] ?? process.env['SMTP_PASS'];
-  const smtpFrom = process.env['SMTP_FROM'] ?? smtpUser;
+  const resendApiKey = process.env['RESEND_API_KEY'];
+  const from = process.env['RESEND_FROM'] ?? process.env['EMAIL_USER'];
   const contactTo = process.env['CONTACT_TO'] ?? 'umaprasad@dream2decor.in';
-  const smtpSecureSetting = process.env['SMTP_SECURE'];
-  const smtpSecure = smtpSecureSetting === undefined
-    ? smtpPort === 465
-    : smtpSecureSetting.toLowerCase() === 'true';
 
-  if (
-    !smtpHost.trim() ||
-    !smtpFrom ||
-    !contactTo ||
-    !Number.isInteger(smtpPort) ||
-    smtpPort < 1 ||
-    smtpPort > 65535 ||
-    Boolean(smtpUser) !== Boolean(smtpPass) ||
-    (smtpSecureSetting !== undefined && !['true', 'false'].includes(smtpSecureSetting.toLowerCase()))
-  ) {
-    console.error('Contact email is unavailable because SMTP configuration is incomplete or invalid.');
+  if (!resendApiKey || !from || !contactTo) {
+    console.error('Contact email is unavailable because Resend configuration is incomplete.');
     res.status(503).json({ message: 'Contact email is not configured. Please try again later.' });
     return;
   }
@@ -96,33 +79,43 @@ app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next)
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpSecure,
-    ...(smtpUser && smtpPass ? { auth: { user: smtpUser, pass: smtpPass } } : {}),
-  });
-
   try {
-    await transporter.sendMail({
-      from: smtpFrom,
-      to: contactTo,
-      replyTo: submission.email,
-      subject: 'New contact form submission',
-      text: [
-        `Name: ${submission.name}`,
-        `Email: ${submission.email}`,
-        `Phone: ${submission.phone}`,
-        `Submitted at: ${record.submittedAt}`,
-        '',
-        'Message:',
-        submission.message,
-      ].join('\n'),
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: [contactTo],
+        reply_to: submission.email,
+        subject: 'New contact form submission',
+        text: [
+          `Name: ${submission.name}`,
+          `Email: ${submission.email}`,
+          `Phone: ${submission.phone}`,
+          `Submitted at: ${record.submittedAt}`,
+          '',
+          'Message:',
+          submission.message,
+        ].join('\n'),
+      }),
+      signal: AbortSignal.timeout(15_000),
     });
-    res.status(201).json({ message: 'Your message has been sent.' });
+
+    if (!response.ok) {
+      console.error(`Resend rejected contact email with HTTP ${response.status}.`);
+      res.status(502).json({
+        message: 'Your message was saved, but we could not email it. Please try again later.',
+      });
+      return;
+    }
+
+    res.status(201).json({ message: 'Your message has been submitted for email delivery.' });
   } catch (error) {
     console.error(
-      'Contact email delivery failed:',
+      'Contact email request to Resend failed:',
       error instanceof Error ? error.name : 'Unknown email error',
     );
     res.status(502).json({
