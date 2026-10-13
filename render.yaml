@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: dream2decor
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: Frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run serve:ssr:interior-website
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: EMAIL_USER
+        value: umaprasad@dream2decor.in
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: CONTACT_TO
+        value: umaprasad@dream2decor.in
+      - key: SMTP_HOST
+        value: smtpout.secureserver.net
+      - key: SMTP_PORT
+        value: "465"
