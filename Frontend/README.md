@@ -62,15 +62,15 @@ For more information on using the Angular CLI, including detailed command refere
 
 The Express SSR server provides `POST /api/contact`. It validates the submitted name, email, 10-digit phone number, and message, emails the submission to `umaprasad@dream2decor.in`, and appends it as a JSON object on its own line to `data/contact-submissions.jsonl`. This is file-based storage; no SQL database is used. The `data` directory is excluded from Git. Set `CONTACT_SUBMISSIONS_FILE` to choose another path.
 
-The Node server sends messages using the Resend email API. Verify `dream2decor.in` in Resend and add the DNS records Resend requests before sending. Keep the GoDaddy MX records unchanged so the existing mailbox continues to receive mail. Configure the Render service with:
+The Node server sends messages through the GoDaddy SMTP service at `smtpout.secureserver.net` on port `465` with implicit TLS. Configure the Render service with:
 
 ```text
-RESEND_API_KEY=<your Resend API key>
-RESEND_FROM=Dream2Decor <umaprasad@dream2decor.in>
+EMAIL_USER=umaprasad@dream2decor.in
+EMAIL_PASSWORD=<your GoDaddy mailbox password>
 CONTACT_TO=umaprasad@dream2decor.in
 ```
 
-Create the API key in Resend and store it only in Render's secret environment settings; never commit it or put it in frontend configuration. `RESEND_FROM` must be an address on a domain verified in Resend. The endpoint reports delivery failures rather than claiming the message was sent.
+The `render.yaml` Blueprint requests `EMAIL_PASSWORD` as a secret. Enter it in Render's environment settings; never commit it or put it in frontend configuration. `SMTP_HOST`, `SMTP_PORT`, and `SMTP_SECURE` can override the SMTP connection settings. The endpoint reports delivery failures rather than claiming the message was sent.
 
 To run the contact API during development, first build and start the Node server in one terminal:
 
