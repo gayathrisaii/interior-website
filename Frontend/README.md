@@ -57,3 +57,28 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Contact submissions
+
+The Express SSR server provides `POST /api/contact`. It validates the submitted name, email, 10-digit phone number, and message, emails the submission to `umaprasad@dream2decor.in`, and appends it as a JSON object on its own line to `data/contact-submissions.jsonl`. This is file-based storage; no SQL database is used. The `data` directory is excluded from Git. Set `CONTACT_SUBMISSIONS_FILE` to choose another path.
+
+The server defaults to GoDaddy SMTP at `smtpout.secureserver.net:465` with TLS. Configure the mailbox credentials and destination in the Node server's environment:
+
+```text
+EMAIL_USER=umaprasad@dream2decor.in
+EMAIL_PASSWORD=<your real mailbox password>
+CONTACT_TO=umaprasad@dream2decor.in
+```
+
+`SMTP_HOST` and `SMTP_PORT` can override the GoDaddy defaults; port 465 uses implicit TLS. `SMTP_FROM` can override the sender address (defaults to `EMAIL_USER`). For compatibility, credentials can also be set as `SMTP_USER` and `SMTP_PASS`. Store the real password only in your hosting provider's secret/environment settings, never in source code or frontend configuration. The endpoint reports delivery failures rather than claiming the message was sent.
+
+To run the contact API during development, first build and start the Node server in one terminal:
+
+```bash
+npm run build
+npm run serve:ssr:interior-website
+```
+
+Then run `npm start` in a second terminal and open `http://localhost:4200/`. The Angular dev-server proxy forwards `/api` requests to the Node server on port 4000. After changing server-side code, rebuild and restart the Node server.
+
+Deployments must run the Node SSR server (or another Node host providing this API). Static-only hosting does not run the submission endpoint. Protect and back up the submissions file according to your privacy requirements.

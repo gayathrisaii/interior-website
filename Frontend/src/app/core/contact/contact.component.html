@@ -15,7 +15,7 @@
           <mat-icon matPrefix>person</mat-icon>
           <input matInput formControlName="name" />
           <mat-error *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
-            Name is required
+            Enter a name (up to 100 characters)
           </mat-error>
         </mat-form-field>
 
@@ -45,7 +45,7 @@
           <mat-icon matPrefix>chat</mat-icon>
           <textarea matInput rows="4" formControlName="message"></textarea>
           <mat-error *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched">
-            Message is required
+            Enter a message (up to 2000 characters)
           </mat-error>
         </mat-form-field>
 
@@ -59,6 +59,13 @@
           <mat-icon *ngIf="!submitting">send</mat-icon>
           <span>{{ submitting ? 'Sending...' : 'Send Message' }}</span>
         </button>
+
+        <p *ngIf="successMessage" class="form-feedback success" role="status" aria-live="polite">
+          {{ successMessage }}
+        </p>
+        <p *ngIf="errorMessage" class="form-feedback error" role="alert">
+          {{ errorMessage }}
+        </p>
 
       </form>
     </mat-card-content>

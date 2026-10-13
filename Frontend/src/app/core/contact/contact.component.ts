@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 import { CommonModule } from '@angular/common';
@@ -31,31 +31,41 @@ MatIconModule
 export class ContactComponent {
   contactForm: FormGroup;
   submitting = false;
+  successMessage = '';
+  errorMessage = '';
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.contactForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      message: ['', Validators.required]
+      message: ['', [Validators.required, Validators.maxLength(2000)]]
     });
   }
 
   submit() {
-    if (this.contactForm.invalid) return;
+    if (this.contactForm.invalid || this.submitting) {
+      this.contactForm.markAllAsTouched();
+      return;
+    }
 
     this.submitting = true;
+    this.successMessage = '';
+    this.errorMessage = '';
 
-    this.http.post('http://localhost:3000/api/contact', this.contactForm.value)
+    this.http.post<{ message: string }>('/api/contact', this.contactForm.getRawValue())
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.submitting = false;
-          alert('Message sent successfully!');
+          this.successMessage = response.message;
           this.contactForm.reset();
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
           this.submitting = false;
-          alert('Failed to send message');
+          const message: unknown = error.error?.message;
+          this.errorMessage = typeof message === 'string'
+            ? message
+            : 'We could not send your message. Please try again.';
         }
       });
   }
