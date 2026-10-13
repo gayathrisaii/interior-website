@@ -16,6 +16,11 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+const allowedContactOrigins = new Set([
+  'https://dream2decor.in',
+  'https://www.dream2decor.in',
+]);
+
 async function sendWithBrevo(
   apiKey: string,
   senderEmail: string,
@@ -55,6 +60,28 @@ async function sendWithBrevo(
     throw error;
   }
 }
+
+app.use('/api', (req, res, next) => {
+  const origin = req.get('Origin');
+  if (origin && !allowedContactOrigins.has(origin)) {
+    res.status(403).json({ message: 'This origin is not allowed to submit contact requests.' });
+    return;
+  }
+
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
+  next();
+});
 
 app.post('/api/contact', express.json({ limit: '10kb' }), async (req, res, next) => {
   const body: unknown = req.body;

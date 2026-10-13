@@ -53,7 +53,11 @@ export class ContactComponent {
     this.successMessage = '';
     this.errorMessage = '';
 
-    this.http.post<{ message: string }>('/api/contact', this.contactForm.getRawValue())
+    const apiUrl = ['dream2decor.in', 'www.dream2decor.in'].includes(window.location.hostname)
+      ? 'https://dream2decor.onrender.com/api/contact'
+      : '/api/contact';
+
+    this.http.post<{ message: string }>(apiUrl, this.contactForm.getRawValue())
       .subscribe({
         next: (response) => {
           this.submitting = false;

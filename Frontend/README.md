@@ -73,6 +73,14 @@ CONTACT_TO=umaprasad@dream2decor.in
 
 Verify `umaprasad@dream2decor.in` as a sender in Brevo before testing. The API key is a secret: add it only in Render's environment settings, never in source code or frontend configuration. If `BREVO_API_KEY` is absent, the server falls back to GoDaddy SMTP (`smtpout.secureserver.net`, port `465`, implicit TLS); configure `EMAIL_USER` and `EMAIL_PASSWORD` for that fallback. The endpoint reports delivery failures rather than claiming the message was sent.
 
+The custom domain currently uses GitHub Pages for the frontend while the contact API runs on Render. The contact form detects `dream2decor.in` and posts to `https://dream2decor.onrender.com/api/contact`; the Render API allows requests only from the apex and `www` HTTPS origins. After changing the frontend, publish it to the existing GitHub Pages branch with:
+
+```bash
+ng deploy --base-href=/ --cname=dream2decor.in
+```
+
+The Render service can also serve the frontend and API together at `https://dream2decor.onrender.com`, where the form uses the same-origin `/api/contact` endpoint.
+
 To run the contact API during development, first build and start the Node server in one terminal:
 
 ```bash
