@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { FooterComponent } from './core/footer/footer.component';
 import { HeaderComponent } from './core/header/header.component';
 
@@ -11,19 +13,55 @@ import { HeaderComponent } from './core/header/header.component';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  constructor(private titleService: Title, private metaService: Meta) {}
+  private readonly document = inject(DOCUMENT);
+
+  constructor(
+    private titleService: Title,
+    private metaService: Meta,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.titleService.setTitle('Dream2Decor');
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(() => this.updateSeoMetadata());
+
+    this.updateSeoMetadata();
+  }
+
+  private updateSeoMetadata(): void {
+    let route = this.router.routerState.snapshot.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+
+    const seo = route.data['seo'] as
+      | { title: string; description: string; robots?: string }
+      | undefined;
+    const title = seo?.title ?? 'Dream2Decor | Interior Design & Construction';
+    const description = seo?.description
+      ?? 'Dream2Decor creates elegant home interiors, modular kitchens, custom wardrobes, and construction solutions.';
+    const path = this.router.url.split(/[?#]/, 1)[0] || '/';
+    const canonicalUrl = `https://dream2decor.in${path === '/' ? '/' : `${path.replace(/\/+$/, '')}/`}`;
+
+    this.titleService.setTitle(title);
+    this.metaService.updateTag({ name: 'description', content: description });
     this.metaService.updateTag({
-      name: 'description',
-      content:
-        'Dream2Decor delivers elegant interior design, modular kitchens, wardrobes, and complete construction solutions for homes and commercial spaces.'
+      name: 'robots',
+      content: seo?.robots ?? 'index,follow'
     });
-    this.metaService.updateTag({
-      name: 'keywords',
-      content:
-        'interior design, home interiors, Dream2Decor, modular kitchen, wardrobe design, construction services'
-    });
+    this.metaService.updateTag({ property: 'og:title', content: title });
+    this.metaService.updateTag({ property: 'og:description', content: description });
+    this.metaService.updateTag({ property: 'og:url', content: canonicalUrl });
+    this.metaService.updateTag({ name: 'twitter:title', content: title });
+    this.metaService.updateTag({ name: 'twitter:description', content: description });
+
+    let canonical = this.document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = this.document.createElement('link');
+      canonical.rel = 'canonical';
+      this.document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
   }
 }
