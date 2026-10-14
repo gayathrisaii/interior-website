@@ -60,34 +60,20 @@ For more information on using the Angular CLI, including detailed command refere
 
 ## Contact submissions
 
-The Express SSR server provides `POST /api/contact`. It validates the submitted name, email, 10-digit phone number, and message, emails the submission to `umaprasad@dream2decor.in`, and appends it as a JSON object on its own line to `data/contact-submissions.jsonl`. This is file-based storage; no SQL database is used. The `data` directory is excluded from Git. Set `CONTACT_SUBMISSIONS_FILE` to choose another path.
+The contact API is a separate Node service in the repository's `Backend` folder. Run it in a second terminal while developing the Angular app:
 
-Contact email is sent through Brevo's HTTPS transactional email API when `BREVO_API_KEY` is configured. This avoids Render's SMTP connectivity restrictions while keeping GoDaddy as the receiving mailbox. Configure a Brevo account, create and verify the sender address, and set these Render environment variables:
-
-```text
-BREVO_API_KEY=<your Brevo API key>
-BREVO_FROM_EMAIL=umaprasad@dream2decor.in
-BREVO_FROM_NAME=Dream2Decor Website
-CONTACT_TO=umaprasad@dream2decor.in
+```bash
+cd ../Backend
+npm ci
+npm start
 ```
 
-Verify `umaprasad@dream2decor.in` as a sender in Brevo before testing. The API key is a secret: add it only in Render's environment settings, never in source code or frontend configuration. If `BREVO_API_KEY` is absent, the server falls back to GoDaddy SMTP (`smtpout.secureserver.net`, port `465`, implicit TLS); configure `EMAIL_USER` and `EMAIL_PASSWORD` for that fallback. The endpoint reports delivery failures rather than claiming the message was sent.
+The API listens on port `4000` by default, and the Angular dev-server proxy forwards `/api` requests to it. The API validates contact details, emails submissions, and appends each submission to `Backend/data/contact-submissions.jsonl`. See [Backend/README.md](../Backend/README.md) for email configuration and deployment settings.
 
-The custom domain currently uses GitHub Pages for the frontend while the contact API runs on Render. The contact form detects `dream2decor.in` and posts to `https://dream2decor.onrender.com/api/contact`; the Render API allows requests only from the apex and `www` HTTPS origins. After changing the frontend, publish it to the existing GitHub Pages branch with:
+The custom domain uses GitHub Pages for the frontend and Render for the separate contact API. The contact form detects `dream2decor.in` and posts to `https://dream2decor.onrender.com/api/contact`. After changing the frontend, publish it to the existing GitHub Pages branch with:
 
 ```bash
 ng deploy --base-href=/ --cname=dream2decor.in
 ```
 
-The Render service can also serve the frontend and API together at `https://dream2decor.onrender.com`, where the form uses the same-origin `/api/contact` endpoint.
-
-To run the contact API during development, first build and start the Node server in one terminal:
-
-```bash
-npm run build
-npm run serve:ssr:interior-website
-```
-
-Then run `npm start` in a second terminal and open `http://localhost:4200/`. The Angular dev-server proxy forwards `/api` requests to the Node server on port 4000. After changing server-side code, rebuild and restart the Node server.
-
-Deployments must run the Node SSR server (or another Node host providing this API). Static-only hosting does not run the submission endpoint. Protect and back up the submissions file according to your privacy requirements.
+Render deploys the API from `Backend` independently of the Angular frontend. The Angular SSR build remains available for Node hosting if needed, but its rendering server does not implement the contact API.

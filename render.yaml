@@ -4,10 +4,10 @@ services:
     runtime: node
     plan: free
     region: singapore
-    rootDir: Frontend
-    buildCommand: npm ci --include=dev && npm run build
-    startCommand: npm run serve:ssr:interior-website
-    healthCheckPath: /
+    rootDir: Backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
