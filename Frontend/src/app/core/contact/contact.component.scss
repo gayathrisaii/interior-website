@@ -21,17 +21,23 @@
   width: 100%;
   padding: 12px;
   font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.form-feedback {
-  margin: 16px 0 0;
-  text-align: center;
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
 }
 
-.success {
-  color: #237a3b;
-}
-
-.error {
-  color: #b3261e;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

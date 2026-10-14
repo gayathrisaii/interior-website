@@ -56,16 +56,10 @@
                 type="submit"
                 [disabled]="contactForm.invalid || submitting">
 
+          <span *ngIf="submitting" class="loading-spinner" role="status" aria-label="Sending"></span>
           <mat-icon *ngIf="!submitting">send</mat-icon>
           <span>{{ submitting ? 'Sending...' : 'Send Message' }}</span>
         </button>
-
-        <p *ngIf="successMessage" class="form-feedback success" role="status" aria-live="polite">
-          {{ successMessage }}
-        </p>
-        <p *ngIf="errorMessage" class="form-feedback error" role="alert">
-          {{ errorMessage }}
-        </p>
 
       </form>
     </mat-card-content>

@@ -31,8 +31,6 @@ MatIconModule
 export class ContactComponent {
   contactForm: FormGroup;
   submitting = false;
-  successMessage = '';
-  errorMessage = '';
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.contactForm = this.fb.group({
@@ -50,8 +48,6 @@ export class ContactComponent {
     }
 
     this.submitting = true;
-    this.successMessage = '';
-    this.errorMessage = '';
 
     const apiUrl = ['dream2decor.in', 'www.dream2decor.in'].includes(window.location.hostname)
       ? 'https://dream2decor.onrender.com/api/contact'
@@ -61,15 +57,16 @@ export class ContactComponent {
       .subscribe({
         next: (response) => {
           this.submitting = false;
-          this.successMessage = response.message;
           this.contactForm.reset();
+          window.alert(response.message || 'Your message was sent successfully.');
         },
         error: (error: HttpErrorResponse) => {
           this.submitting = false;
           const message: unknown = error.error?.message;
-          this.errorMessage = typeof message === 'string'
+          const errorMessage = typeof message === 'string'
             ? message
             : 'We could not send your message. Please try again.';
+          window.alert(errorMessage);
         }
       });
   }
