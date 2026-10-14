@@ -8,12 +8,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-contact',
   imports: [CommonModule,ReactiveFormsModule,MatCardModule,
 MatInputModule,
 MatButtonModule,
-MatIconModule
+MatIconModule,
+MatSnackBarModule
 ],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
@@ -32,7 +34,11 @@ export class ContactComponent {
   contactForm: FormGroup;
   submitting = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private snackBar: MatSnackBar
+  ) {
     this.contactForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
@@ -58,7 +64,16 @@ export class ContactComponent {
         next: (response) => {
           this.submitting = false;
           this.contactForm.reset();
-          window.alert(response.message || 'Your message was sent successfully.');
+          this.snackBar.open(
+            response.message || 'Your message was sent successfully.',
+            'Close',
+            {
+              duration: 5000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: ['contact-snackbar-success']
+            }
+          );
         },
         error: (error: HttpErrorResponse) => {
           this.submitting = false;
@@ -66,7 +81,12 @@ export class ContactComponent {
           const errorMessage = typeof message === 'string'
             ? message
             : 'We could not send your message. Please try again.';
-          window.alert(errorMessage);
+          this.snackBar.open(errorMessage, 'Close', {
+            duration: 7000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['contact-snackbar-error']
+          });
         }
       });
   }
