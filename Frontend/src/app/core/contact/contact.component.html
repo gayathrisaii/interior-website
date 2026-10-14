@@ -1,5 +1,10 @@
 <div class="contact-container" @fadeSlide>
 
+  <div *ngIf="submitting" class="page-loader" role="status" aria-live="polite">
+    <span class="page-loader-spinner" aria-hidden="true"></span>
+    <span>Sending your message...</span>
+  </div>
+
   <mat-card class="contact-card">
     <mat-card-header>
       <mat-card-title>Contact Us</mat-card-title>
